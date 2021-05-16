@@ -1,8 +1,7 @@
 <template>
   <div id="app">
-    <h1>Today头条</h1>
     <!-- 路由的出口 -->
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
