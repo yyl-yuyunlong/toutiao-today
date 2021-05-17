@@ -44,22 +44,24 @@
         name="code"
         :rules="formRules.code"
       >
-        <template #button>
+        <van-icon slot="left-icon" class-prefix="icon" name="mima"></van-icon>
+        <van-button
+          slot="button"
+          size="small"
+          :type="isSending ? 'default' : 'primary'"
+          :disabled="isSending"
+          @click="onSendSms"
+        >
           <van-count-down
-            v-if="isCountDownShow"
+            ref="countDown"
+            v-if="isSending"
             :time="1000 * 60"
             format="ss s"
-            @finish="isCountDownShow = false"
+            :auto-start="false"
+            @finish="isSending = false"
           />
-          <van-button
-            v-else
-            class="send-btn"
-            size="mini"
-            round
-            :loading = "isSendSmsLoading"
-            @click.prevent="onSendSms"
-          >发送验证码</van-button>
-        </template>
+          <span v-else>获取验证码</span>
+        </van-button>
       </van-field>
       <div class="login-btn-wrap">
         <van-button
@@ -98,8 +100,9 @@ export default {
       },
       isCountDownShow: false,
       // 控制倒计时和发送按钮的显示状态
-      isSendSmsLoading: false
+      isSendSmsLoading: false,
       // 发送验证码按钮的Loading状态
+      isSending: false
     }
   },
   computed: {},
@@ -123,6 +126,9 @@ export default {
         Toast.success('登录成功!')
         // 将后端返回的用户登录状态(token 等数据) 放到Vuex容器中
         this.$store.commit('setUser', data.data)
+        // 登录成功，跳转到首页
+        const redirect = this.$route.query.redirect || '/'
+        this.$router.replace(redirect)
       } catch (err) {
         if (err.response.status === 400) {
           console.log('登录失败', err)
