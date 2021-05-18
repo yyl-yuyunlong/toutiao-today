@@ -21,7 +21,8 @@
       <div class="label-wrap">
         <span>{{ article.aut_name }}</span>
         <span>{{ article.comm_count }}评论</span>
-        <span>{{ article.pubdate }}</span>
+        <span>{{ article.pubdate | relativeTime }}</span> <!-- 加载dayjs过滤器 -->
+        <!-- <span>{{ article.pubdate }}</span> -->
       </div>
     </div>
     <!-- 默认插槽的名字叫 default，可以省略 -->

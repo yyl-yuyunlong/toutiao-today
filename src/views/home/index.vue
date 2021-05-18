@@ -17,7 +17,7 @@
     <!--
       标签页组件有一个功能，只有你第1次查看标签页的时候才会渲染里面的内容
      -->
-    <van-tabs v-model="active">
+    <van-tabs class="channel-tabs" v-model="active">
       <van-tab
        :title="channel.name"
        v-for="channel in channels"
@@ -68,7 +68,8 @@ export default {
   .home-container {
     /deep/ .van-nav-bar__title{
       max-width: none;
-      .search-btn {
+    }
+    .search-btn {
        width: 277px;
        height: 32px;
        background-color: #5babfb;
@@ -79,8 +80,18 @@ export default {
        .van-button__text {
          font-size: 14px;
        }
-     }
+    }
+    .channel-tabs {
+      /deep/ .van-tab {
+        border-right: 1px solid #edeff3;
+        border-bottom: 1px solid #edeff3;
+      }
+      /deep/ .van-tabs__line {
+        width: 15px;
+        height: 3px;
+        bottom: 20px;
+        background-color: #3296fa;
+      }
     }
   }
-
 </style>

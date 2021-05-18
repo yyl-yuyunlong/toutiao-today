@@ -13,6 +13,9 @@ import './styles/index.less'
 // 自动设置REM基准值(html 标签字体大小)
 import 'amfe-flexible'
 
+// 加载 dayjs
+import './utils/dayjs'
+
 Vue.use(Vant)
 
 Vue.config.productionTip = false
