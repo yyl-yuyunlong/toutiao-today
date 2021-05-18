@@ -21,16 +21,21 @@
          @refresh="onRefresh"
       >
         <van-list
-            v-model="loading"
-            :finished="finished"
-            finished-text="总得有个结尾吧"
-            @load="onLoad"
-            >
-            <van-cell
+          v-model="loading"
+          :finished="finished"
+          finished-text="总得有个结尾吧"
+          @load="onLoad"
+        >
+          <article-item
             v-for="(article, index) in articles"
             :key="index"
-            :title="article.title"
-            />
+            :article="article"
+          />
+          <!--  <van-cell
+          v-for="(article, index) in articles"
+          :key="index"
+          :title="article.title"
+          /> -->
         </van-list>
       </van-pull-refresh>
   </div>
@@ -38,9 +43,13 @@
 
 <script>
 import { getArticles } from '@/api/article'
+import ArticleItem from '@/components/article-item'
+
 export default {
   name: 'ArticleList',
-  components: {},
+  components: {
+    ArticleItem
+  },
   props: {
     channel: {
       type: Object,
