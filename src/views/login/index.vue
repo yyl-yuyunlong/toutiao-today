@@ -2,82 +2,68 @@
   <div class="login-container">
     <!-- 导航栏 -->
     <van-nav-bar
-      class="app-nav-bar"
-      title="注册 / 登录"
-      left-arrow
-      @click-left="$router.back()"
-    />
-    <!-- /导航栏 -->
-
-    <!-- 基于 Vant 的表单验证：
-      1. 使用 van-form 组件包裹所有的表单项 van-field
-      2. 给 van -form 绑定 submit 事件
-        提示： 只有表单验证通过，它才会调用 submit
-      3. 使用 Field 的 rules 属性定义校验规则
-     -->
-
-    <!-- 登录表单 -->
-    <van-form
-      :show-error="false"
-      :show-error-message="false"
-      @submit="onLogin"
-      @failed="onFailed"
-      validate-first
-      ref="login-form"
+      class="page-navbar"
+      title="注册/登录"
     >
-      <van-field
-        v-model="user.mobile"
-        icon-prefix="toutiao"
-        left-icon="shouji"
-        center
-        name="mobile"
-        placeholder="请输入手机号"
-        :rules="formRules.mobile"
-      />
-      <van-field
-        v-model="user.code"
-        clearable
-        icon-prefix="toutiao"
-        left-icon="yanzhengma"
-        center
-        placeholder="请输入验证码"
-        name="code"
-        :rules="formRules.code"
+      <van-icon
+        slot="left"
+        name="cross"
+        @click="$router.back()"
+      ></van-icon>
+    </van-nav-bar>
+    <!-- 导航栏 -->
+
+    <!-- 表单 -->
+    <van-field
+      v-model="user.mobile"
+      type="tel"
+      maxlength="11"
+      placeholder="请输入手机号"
+      ref="mobile"
+    >
+      <van-icon slot="left-icon" class-prefix="icon" name="shouji"></van-icon>
+    </van-field>
+    <van-field
+      v-model="user.code"
+      type="tel"
+      maxlength="6"
+      placeholder="请输入验证码"
+      ref="code"
+    >
+      <van-icon slot="left-icon" class-prefix="icon" name="mima"></van-icon>
+      <van-button
+        slot="button"
+        size="small"
+        :type="isSending ? 'default' : 'primary'"
+        :disabled="isSending"
+        @click="onSendCode"
       >
-        <van-icon slot="left-icon" class-prefix="icon" name="mima"></van-icon>
-        <van-button
-          slot="button"
-          size="small"
-          :type="isSending ? 'default' : 'primary'"
-          :disabled="isSending"
-          @click="onSendSms"
-        >
-          <van-count-down
-            ref="countDown"
-            v-if="isSending"
-            :time="1000 * 60"
-            format="ss s"
-            :auto-start="false"
-            @finish="isSending = false"
-          />
-          <span v-else>获取验证码</span>
-        </van-button>
-      </van-field>
-      <div class="login-btn-wrap">
-        <van-button
-          class="login-btn"
-          type="info"
-          block
-          >登录</van-button>
-      </div>
-    </van-form>
-    <!-- /登录表单 -->
+        <van-count-down
+          ref="countDown"
+          v-if="isSending"
+          :time="1000 * 60"
+          format="ss s"
+          :auto-start="false"
+          @finish="isSending = false"
+        />
+        <span v-else>获取验证码</span>
+      </van-button>
+    </van-field>
+    <!-- /表单 -->
+
+    <!-- 登录按钮 -->
+    <div class="login-btn-box">
+      <van-button color="#6db4fb" type="info" @click="onLogin">登录</van-button>
+    </div>
+    <!-- /登录按钮 -->
+
+    <van-divider>账号：13611111111 密码：246810</van-divider>
+    <van-divider>如果收不到验证码，请使用万能验证码：246810</van-divider>
   </div>
 </template>
 
 <script>
-import { login, sendSms } from '@/api/user'
-import { Toast } from 'vant'
+import { login, sendSmsCode } from '@/api/user'
 export default {
   name: 'LoginIndex',
   components: {},
@@ -85,129 +71,123 @@ export default {
   data () {
     return {
       user: {
-        mobile: '', // 手机号 17090086870
-        code: '' // 验证码 246010
+        mobile: '',
+        code: ''
       },
-      formRules: {
-        mobile: [
-          { required: true, message: '请填写手机号' },
-          { pattern: /^1[3|5|7|8|9]\d{9}$/, message: '手机号格式错误' }
-        ],
-        code: [
-          { required: true, message: '请填写验证码' },
-          { pattern: /^\d{6}$/, message: '验证码格式错误' }
-        ]
-      },
-      isCountDownShow: false,
-      // 控制倒计时和发送按钮的显示状态
-      isSendSmsLoading: false,
-      // 发送验证码按钮的Loading状态
       isSending: false
     }
   },
   computed: {},
-  watch: {},
+  watch: {
+  },
   created () {},
-  mounted () {},
   methods: {
     async onLogin () {
-      Toast.loading({
-        // 轻提示
-        message: '登录中...', // 提示文本
-        forbidClick: true, // 禁止背景点击
-        duration: 0 // 展示时长(ms)，值为 0 时，toast 不会消失
+      if (!this.checkMobile() || !this.checkCode()) {
+        return
+      }
+      this.$toast.loading({
+        duration: 0, // 持续时间，0表示持续展示不停止
+        forbidClick: true, // 是否禁止背景点击
+        message: '登录中...' // 提示消息
       })
-      // 1. 找到数据接口
-      // 2. 封装请求方法
-      // 3. 请求调用登录
       try {
         const { data } = await login(this.user)
-        // 4. 处理响应结果
-        Toast.success('登录成功!')
-        // 将后端返回的用户登录状态(token 等数据) 放到Vuex容器中
+        // res.data.data => { token: 'xxx', refresh_token: 'xxx' }
         this.$store.commit('setUser', data.data)
-        // 登录成功，跳转到首页
+        // 提示 success 或者 fail 的时候，会先把其它的 toast 先清除
+        this.$toast.success('登录成功')
+        // 跳转到首页
         const redirect = this.$route.query.redirect || '/'
         this.$router.replace(redirect)
       } catch (err) {
-        if (err.response.status === 400) {
-          console.log('登录失败', err)
-          Toast.fail('登录失败,请重新登录!')
-        }
+        console.log('登录失败', err)
+        this.$toast.fail('登录失败，手机号或验证码错误')
       }
     },
-    onFailed (error) {
-      if (error.errors[0]) {
-        this.$toast({
-          message: error.errors[0].message, // 提示消息
-          position: 'top' // 防止手机键盘太高看不见提示消息
-        })
+    async onSendCode () {
+      const { mobile } = this.user
+      if (!this.checkMobile()) {
+        return
       }
-    },
-    async onSendSms () {
+      // 显示倒计时
+      this.isSending = true
+      // 让验证码输入框聚焦
+      this.$refs.code.focus()
+      // 开始倒计时
+      this.$nextTick(() => {
+        this.$refs.countDown.start()
+      })
+      // 发送短信
       try {
-        // 校验手机号码
-        await this.$refs['login-form'].validate('mobile')
-
-        // 验证通过，请求发送验证码
-        this.isSendSmsLoading = true // 展示按钮的 loading 状态，防止网络慢用户多次点击触发发送行为
-        await sendSms(this.user.mobile)
-        // 短信发出去了,显示倒计时，关闭发送按钮
-        this.isCountDownShow = true
-
-        // 倒计时结束 -> 隐藏倒计时，显示发送按钮（监视倒计时的 finish 事件处理）
+        await sendSmsCode(mobile)
       } catch (err) {
-        // try 里面任何代码的错误都会进入 catch
-        // 不同的错误需要有不同的提示，那就需要判断了
-        let message = ''
-        if (err && err.response && err.response.status === 429) {
-          // 发送短信失败的错误提示
-          message = '发送太频繁了，请稍后重试'
-        } else if (err.name === 'mobile') {
-          // 表单验证失败的错误提示
-          message = err.message
-        } else {
-          // 未知错误
-          message = '发送失败，请稍后重试'
+        let message = '发送失败，请稍后重试'
+        if (err.response.status === 429) {
+          message = '1分钟内只能发送1次，请稍后重试'
         }
-
-        // 提示用户
         this.$toast({
           message,
           position: 'top'
         })
+        // 关闭倒计时
+        this.isSending = false
       }
-
-      // 无论发送验证码成功还是失败，最后都要关闭发送按钮的 loading 状态
-      this.isSendSmsLoading = false
-
-      // 发送失败，显示发送按钮，关闭倒计时
-    // +  this.isCountDownShow = false
+    },
+    checkMobile () {
+      const { mobile } = this.user
+      if (!mobile) {
+        this.$toast({
+          message: '手机号码不能为空',
+          position: 'top'
+        })
+        this.$refs.mobile.focus()
+        return false
+      }
+      if (!/^1[3578]\d{9}$/.test(mobile)) {
+        this.$toast({
+          message: '手机号码格式错误',
+          position: 'top'
+        })
+        this.$refs.mobile.focus()
+        return false
+      }
+      return true
+    },
+    checkCode () {
+      const { code } = this.user
+      if (!code) {
+        this.$toast({
+          message: '验证码不能为空',
+          position: 'top'
+        })
+        this.$refs.code.focus()
+        return false
+      }
+      if (!/^\d{6}$/.test(code)) {
+        this.$toast({
+          message: '验证码格式错误',
+          position: 'top'
+        })
+        this.$refs.code.focus()
+        return false
+      }
+      return true
     }
   }
 }
 </script>
 
 <style scoped lang="less">
-  .login-container {
-    .send-btn {
-      width: 76px;
-      height: 23px;
-      background-color:#ededed;
-      .van-button__text {
-        font-size: 11px;
-        color:#666;
-      }
-    }
-    .login-btn-wrap {
-      padding: 26px 16px;
-      .login-btn {
-        background-color: #6db4fb;
-        border: none;
-        .van-button__text {
-          font-size: 15px;
-        }
-      }
+.login-container {
+  .login-btn-box {
+    padding: 20px;
+    .van-button {
+      width: 100%;
     }
   }
+  .van-cell {
+    align-items: center;
+  }
+}
 </style>
