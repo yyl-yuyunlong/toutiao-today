@@ -71,7 +71,7 @@ export default {
   data () {
     return {
       user: {
-        mobile: '',
+        mobile: '13611111111',
         code: ''
       },
       isSending: false
