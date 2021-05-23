@@ -15,18 +15,17 @@
         color="#e5615b"
       >{{ isEdit ? '完成' : '编辑' }}</van-button>
     </van-cell>
+
     <van-grid :gutter="10" clickable>
-      <!--
-        所有的 **组件**，如果没有内容，都可以写单标签结束或者双标签结束
-        原生的 HTML 标签，你怎么学的你就怎么写
-      -->
       <van-grid-item
         class="channel-item"
         v-for="(channel, index) in userChannels"
         :key="channel.id"
         @click="onChannelActiveOrDelete(channel, index)"
       >
-        <span class="text" :class="{ active: value === index }">{{ channel.name }}</span>
+        <span class="text"
+         :class="{ active: active === index }"
+        >{{ channel.name }}</span>
         <van-icon
           v-show="isEdit && channel.name !== '推荐'"
           class="close-icon"
@@ -69,9 +68,9 @@ export default {
       type: Array,
       required: true
     },
-    value: {
+    active: {
       type: Number,
-      default: 0
+      required: true
     }
   },
   data () {
@@ -101,7 +100,7 @@ export default {
         this.deleteChannel(channel, index)
       } else {
         // 非编辑状态，执行切换频道
-        this.$emit('input', index)
+        this.$emit('update-active', index)
         this.$emit('close')
       }
     },
@@ -126,19 +125,18 @@ export default {
       }
     },
     async onChannelAdd (channel) {
-      // 已登录，将数据存储到线上
       try {
+        this.userChannels.push(channel)
         if (this.user) {
-          await addChannel({
-            id: channel.id,
-            seq: this.userChannels.length
-          })
+          // 已登录，将数据存储到线上
+          await addChannel([{
+            id: channel.id, // 频道 id
+            seq: this.userChannels.length // 频道的 序号
+          }])
         } else {
           // 未登录，将数据存储到本地
-          setItem('channels', [...this.userChannels, channel])
+          setItem('channels', this.userChannels)
         }
-        // 更新视图
-        this.userChannels.push(channel)
       } catch (err) {
         console.log(err)
         this.$toast('添加失败,请稍后重试')
@@ -165,14 +163,14 @@ export default {
 }
 .channel-item {
   height: 43px;
-  ::v-deep .van-grid-item__content {
+   .van-grid-item__content {
     background: #f4f5f6;
   }
   .text {
     font-size: 14px;
     color: #222;
   }
-  .active {
+  /deep/ .active {
     color: #e5615b;
   }
   .close-icon {

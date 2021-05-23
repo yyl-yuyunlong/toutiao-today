@@ -18,13 +18,11 @@ export const getAllChannels = () => {
 /**
  * 添加用户频道
  */
-export const addChannel = channel => {
+export const addChannel = data => {
   return request({
     method: 'PATCH',
     url: '/app/v1_0/user/channels',
-    data: {
-      channels: [channel]
-    }
+    data
   })
 }
 
