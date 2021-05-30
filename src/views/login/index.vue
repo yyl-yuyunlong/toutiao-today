@@ -2,16 +2,12 @@
   <div class="login-container">
     <!-- 导航栏 -->
     <van-nav-bar
-      class="page-navbar"
-      title="注册/登录"
-    >
-      <van-icon
-        slot="left"
-        name="cross"
-        @click="$router.back()"
-      ></van-icon>
-    </van-nav-bar>
-    <!-- 导航栏 -->
+      class="app-nav-bar"
+      title="注册 / 登录"
+      left-arrow
+      @click-left="$router.back()"
+    />
+    <!-- /导航栏 -->
 
     <!-- 表单 -->
     <van-field
@@ -180,6 +176,12 @@ export default {
 
 <style scoped lang="less">
 .login-container {
+  .app-nav-bar {
+    background-color:#3296fa;
+    /deep/ .van-nav-bar__title {
+    color: #fff;
+    }
+  }
   .login-btn-box {
     padding: 20px;
     .van-button {

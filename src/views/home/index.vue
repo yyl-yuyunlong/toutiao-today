@@ -162,7 +162,7 @@ export default {
       justify-content: center;
       align-items: center;
       opacity: .9;
-      z-index: 99;
+      /* z-index: 99; */
       .van-icon {
         font-size: 24px;
       }

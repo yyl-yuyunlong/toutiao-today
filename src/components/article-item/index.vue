@@ -1,5 +1,13 @@
 <template>
-  <van-cell class="article-item">
+  <van-cell
+   class="article-item"
+   :to="{
+    name: 'article',
+    params: {
+     articleId: article.art_id
+    }
+   }"
+  >
     <div slot="title" class="title van-multi-ellipsis--l3">{{ article.title }}</div>
     <div slot="label">
       <div
@@ -36,6 +44,9 @@
 </template>
 
 <script>
+// 在组件中获取动态路由参数：
+// 方式一：this.$route.params.xxx
+// 方式二：props 传参： this.xxx
 export default {
   name: 'ArticleItem',
   components: {},
