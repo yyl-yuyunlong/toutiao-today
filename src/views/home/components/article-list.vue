@@ -1,5 +1,5 @@
 <template>
-  <div class="article-list">
+  <div class="article-list" ref="article-list">
     <van-pull-refresh v-model="refreshLoading" @refresh="onRefresh">
       <van-list
         v-model="loading"
@@ -20,6 +20,7 @@
 <script>
 import ArticleItem from '@/components/article-item'
 import { getArticles } from '@/api/article'
+import { debounce } from 'lodash'
 export default {
   name: '',
   components: {
@@ -43,7 +44,17 @@ export default {
   computed: {},
   watch: {},
   created () {},
-  mounted () {},
+  mounted () {
+    const articleList = this.$refs['article-list']
+    articleList.onscroll = debounce(() => {
+      this.scrollTop = articleList.scrollTop
+    }, 50)
+  },
+  activated () {
+    // 把记录到顶部的距离再重新设置回去
+    this.$refs['article-list'].scrollTop = this.scrollTop
+  },
+  deactivated () {},
   methods: {
     async onLoad () {
       // 1. 请求获取数据

@@ -91,6 +91,8 @@ export default {
         const { data } = await login(this.user)
         // res.data.data => { token: 'xxx', refresh_token: 'xxx' }
         this.$store.commit('setUser', data.data)
+        // 清除 layout 的缓存，让它重新渲染
+        this.$store.commit('removeCachePage', 'LayoutIndex')
         // 提示 success 或者 fail 的时候，会先把其它的 toast 先清除
         this.$toast.success('登录成功')
         // 跳转到首页
